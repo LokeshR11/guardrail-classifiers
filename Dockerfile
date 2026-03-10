@@ -28,7 +28,7 @@ RUN python -c "from huggingface_hub import snapshot_download; \
 
 # Download Layer 2 - NVIDIA Aegis safety
 RUN python -c "from huggingface_hub import snapshot_download; \
-    snapshot_download(repo_id='alexcm/MiniLM-L12-H384-uncased_NVIDIA-Aegis-AI-Safety', \
+    snapshot_download(repo_id='alexc09/MiniLM-L12-H384-uncased_NVIDIA-Aegis-AI-Safety', \
     local_dir='/app/models/minilm', \
     local_dir_use_symlinks=False, \
     revision='main')"
