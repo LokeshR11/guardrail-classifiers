@@ -1,0 +1,40 @@
+apiVersion: ai.sap.com/v1alpha1
+kind: ServingTemplate
+metadata:
+  name: guardrail-classifier-infer
+  annotations:
+    scenarios.ai.sap.com/description: "Guardrail classifier service using MiniLM and DeBERTa"
+    scenarios.ai.sap.com/name: "guardrail-classifier-scenario"
+    executables.ai.sap.com/description: "Inference executable for safety and jailbreak detection"
+    executables.ai.sap.com/name: "guardrail-classifier-exec"
+  labels:
+    ai.sap.com/version: "1.0.0"
+    scenarios.ai.sap.com/id: "guardrail-classifier"  
+spec:
+  inputs:
+    parameters:
+      - name: image
+        type: string
+        default: "lokeshr11/guardrail-classifiers:latest"
+        description: "Docker image containing the classifier service"
+  template:
+    apiVersion: serving.kserve.io/v1beta1
+    metadata:
+      annotations: |                                  
+        autoscaling.knative.dev/metric: rps
+        autoscaling.knative.dev/target: "100"
+        autoscaling.knative.dev/targetBurstCapacity: "70"
+      labels: |                                       
+        ai.sap.com/resourcePlan: infer.s
+    spec: |                                           
+      predictor:
+        imagePullSecrets:
+          - name: docker-registry-secret
+        minReplicas: 1
+        maxReplicas: 3
+        containers:
+          - name: kserve-container                     
+            image: "{{inputs.parameters.image}}"
+            ports:
+              - containerPort: 8000
+                protocol: TCP
