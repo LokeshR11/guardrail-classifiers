@@ -14,12 +14,9 @@ spec:
   inputs:
     parameters:
       - name: image
-        default: "docker.io/lokeshr11/guardrail-classifiers:latest"  
         type: string
+        default: "docker.io/lokeshr11/guardrail-classifiers:latest"
         description: "Docker image for guardrail classifier"
-    artifacts:
-      - name: placeholder-model  # ← ADD THIS: dummy artifact to pass validation
-        description: "Placeholder - no model needed"
   template:
     apiVersion: serving.kserve.io/v1beta1
     metadata:
@@ -29,8 +26,10 @@ spec:
         autoscaling.knative.dev/targetBurstCapacity: "10"
       labels: |
         ai.sap.com/resourcePlan: infer.s
-    spec:
+    spec: |
       predictor:
+        imagePullSecrets:
+          - name: docker-registry-secret
         minReplicas: 1
         maxReplicas: 3
         containers:
@@ -39,4 +38,3 @@ spec:
             ports:
               - containerPort: 8000
                 protocol: TCP
-            
