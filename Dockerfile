@@ -7,11 +7,12 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
-
-RUN pip install --no-cache-dir \
-    "torch>=2.6.0" --index-url https://download.pytorch.org/whl/cpu
-
+# Step 1 — install all requirements first (lets transformers pick any torch)
 RUN pip install --no-cache-dir -r requirements.txt
+
+
+RUN pip install --no-cache-dir --upgrade --force-reinstall \
+    "torch>=2.6.0" --index-url https://download.pytorch.org/whl/cpu
 
 ENV HF_HOME=/tmp
 ENV TRANSFORMERS_CACHE=/tmp
