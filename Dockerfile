@@ -5,14 +5,30 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
+# Step 1 — upgrade pip 
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir "typing-extensions>=4.10.0"
+
 COPY requirements.txt .
 
-# Step 1 — install all requirements first (lets transformers pick any torch)
+# Step 2 — install requirements (transformers, tiktoken etc.)
+# using --no-deps for conflict-prone packages
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Step 3 — install torch CPU with --no-deps to bypass resolver conflict
+# then install torch's actual deps separately
+RUN pip install --no-cache-dir --no-deps \
+    "torch==2.6.0+cpu" \
+    --index-url https://download.pytorch.org/whl/cpu
 
-RUN pip install --no-cache-dir --upgrade --force-reinstall \
-    "torch>=2.6.0" --index-url https://download.pytorch.org/whl/cpu
+# Step 4 — install torch's required deps explicitly
+RUN pip install --no-cache-dir \
+    "typing-extensions>=4.10.0" \
+    "filelock" \
+    "sympy" \
+    "networkx" \
+    "jinja2" \
+    "fsspec"
 
 ENV HF_HOME=/tmp
 ENV TRANSFORMERS_CACHE=/tmp
