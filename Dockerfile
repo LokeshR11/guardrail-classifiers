@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 WORKDIR /app
 
-# Install only what's needed
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
@@ -19,17 +19,24 @@ ENV TRANSFORMERS_CACHE=/tmp
 
 RUN mkdir -p /app/models
 
-# Download Layer 1 - DeBERTa prompt injection
+# Download Layer 1 — DeBERTa prompt injection
 RUN python -c "from huggingface_hub import snapshot_download; \
     snapshot_download(repo_id='protectai/deberta-v3-base-prompt-injection-v2', \
     local_dir='/app/models/deberta', \
     local_dir_use_symlinks=False, \
     revision='main')"
 
-# Download Layer 2 - NVIDIA Aegis safety
+# Download Layer 2 — NVIDIA Aegis safety
 RUN python -c "from huggingface_hub import snapshot_download; \
-    snapshot_download(repo_id='alexc09/MiniLM-L12-H384-uncased_NVIDIA-Aegis-AI-Safety', \
+    snapshot_download(repo_id='alexc09/MiniLM-L12-H384-uncased_Nvidia-Aegis-AI-Safety', \
     local_dir='/app/models/minilm', \
+    local_dir_use_symlinks=False, \
+    revision='main')"
+
+# Download Layer 3 — MobileBERT SQL injection  
+RUN python -c "from huggingface_hub import snapshot_download; \
+    snapshot_download(repo_id='cssupport/mobilebert-sql-injection-detect', \
+    local_dir='/app/models/mobilebert', \
     local_dir_use_symlinks=False, \
     revision='main')"
 
