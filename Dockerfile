@@ -1,16 +1,15 @@
 FROM python:3.10-slim
 WORKDIR /app
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
-# Install CPU-only torch (saves ~1.5GB vs full torch)
+
 RUN pip install --no-cache-dir \
-    torch --index-url https://download.pytorch.org/whl/cpu
+    "torch>=2.6.0" --index-url https://download.pytorch.org/whl/cpu
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -33,7 +32,7 @@ RUN python -c "from huggingface_hub import snapshot_download; \
     local_dir_use_symlinks=False, \
     revision='main')"
 
-# Download Layer 3 — MobileBERT SQL injection  
+# Download Layer 3 — MobileBERT SQL injection
 RUN python -c "from huggingface_hub import snapshot_download; \
     snapshot_download(repo_id='cssupport/mobilebert-sql-injection-detect', \
     local_dir='/app/models/mobilebert', \
